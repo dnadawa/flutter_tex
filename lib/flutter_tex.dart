@@ -19,6 +19,29 @@ class TeXView extends StatefulWidget {
   _TeXViewState createState() => _TeXViewState();
 }
 
+class _TeXViewState extends State<TeXView> {
+  _Server server = _Server();
+  final baseUrl =
+      "http://localhost:8080/packages/flutter_tex/MathJax/index.html";
+
+  @override
+  Widget build(BuildContext context) {
+    server.start();
+    return WebView(
+      key: widget.key,
+      initialUrl: "$baseUrl?data=${Uri.encodeComponent(widget.teXHTML)}",
+      onPageFinished: widget.onPageFinished(),
+      javascriptMode: JavascriptMode.unrestricted,
+    );
+  }
+
+  @override
+  void dispose() {
+    server.close();
+    super.dispose();
+  }
+}
+
 class _Server {
   // class from inAppBrowser
 
@@ -87,28 +110,5 @@ class _Server {
     }, onError: (e, stackTrace) => print('Error: $e $stackTrace'));
 
     return completer.future;
-  }
-}
-
-class _TeXViewState extends State<TeXView> {
-  _Server server = _Server();
-  final baseUrl =
-      "http://localhost:8080/packages/flutter_tex/MathJax/index.html";
-
-  @override
-  Widget build(BuildContext context) {
-    server.start();
-    return WebView(
-      key: widget.key,
-      initialUrl: "$baseUrl?data=${Uri.encodeComponent(widget.teXHTML)}",
-      onPageFinished: widget.onPageFinished,
-      javascriptMode: JavascriptMode.unrestricted,
-    );
-  }
-
-  @override
-  void dispose() {
-    server.close();
-    super.dispose();
   }
 }

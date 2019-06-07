@@ -22,6 +22,9 @@ class _FlutterTeXState extends State<FlutterTeX> {
         ),
         body: TeXView(
           teXHTML: teXHTML,
+          onPageFinished: (){
+            print("Loading Finished");
+          },
         ),
       ),
     );
