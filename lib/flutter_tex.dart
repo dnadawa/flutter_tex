@@ -12,8 +12,9 @@ class TeXView extends StatefulWidget {
   final Key key;
   final String teXHTML;
   final Function onPageFinished;
+  final Function(String) onRenderFinished;
 
-  TeXView({this.key, this.teXHTML, this.onPageFinished});
+  TeXView({this.key, this.teXHTML, this.onPageFinished, this.onRenderFinished});
 
   @override
   _TeXViewState createState() => _TeXViewState();
@@ -26,7 +27,9 @@ class _TeXViewState extends State<TeXView> {
 
   @override
   Widget build(BuildContext context) {
-    server.start();
+    server.start((height) {
+      widget.onRenderFinished(height);
+    });
     return WebView(
       key: widget.key,
       initialUrl: "$baseUrl?data=${Uri.encodeComponent(widget.teXHTML)}",
@@ -62,7 +65,7 @@ class _Server {
     }
   }
 
-  Future<void> start() async {
+  Future<void> start(Function onRenderFinished(String height)) async {
     if (this._server != null) {
       throw Exception('Server already started on http://localhost:$_port');
     }
@@ -76,6 +79,11 @@ class _Server {
         this._server = server;
 
         server.listen((HttpRequest request) async {
+          if (request.method == 'GET' &&
+              request.uri.queryParameters['rendering'] == "completed") {
+            onRenderFinished(request.uri.queryParameters['height'].toString());
+          }
+
           var body = List<int>();
           var path = request.requestedUri.path;
           path = (path.startsWith('/')) ? path.substring(1) : path;

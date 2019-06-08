@@ -23,7 +23,13 @@ class _FlutterTeXState extends State<FlutterTeX> {
         body: TeXView(
           teXHTML: teXHTML,
           onPageFinished: (){
+
             print("Loading Finished");
+          },
+          onRenderFinished: (height){
+
+            print("Rendering Finished, Height of Webview is: $height");
+
           },
         ),
       ),
