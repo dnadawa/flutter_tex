@@ -51,7 +51,26 @@
 
 <div id="data"></div>
 
+
 </body>
+
+<script>
+
+
+        document.getElementById('data').innerHTML = decodeURIComponent(location.search.split('data=')[1]);
+        var port = new URL(location.href).searchParams.get("port");
+
+        MathJax.Hub.Queue(function () {
+        var height = document.getElementById('data').clientHeight;
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "http://localhost:"+ port +"?rendering=completed&height="+height, true);
+        xmlHttp.send(null);
+
+        });
+
+
+</script>
+
 
 
 </html>

@@ -29,8 +29,6 @@ class _FlutterTeXState extends State<FlutterTeX> {
         ),
 
         body: ListView(
-/*          addAutomaticKeepAlives: true,
-          cacheExtent: 10,*/
           children: <Widget>[
 
 
@@ -41,12 +39,20 @@ class _FlutterTeXState extends State<FlutterTeX> {
               onRenderFinished: (height) {
                 print("Height is : $height");
               },
+              onPageFinished: (string){
+                print("Page Loading finished");
+
+              },
             ),
             TeXView(
               // any random unique index (0-9) is mandatory if you are using multiple TeXView in a List view on a same page.
-            index: 1,
+              index: 1,
               teXHTML: teXHTML,
-            ),
+            ),            TeXView(
+              // any random unique index (0-9) is mandatory if you are using multiple TeXView in a List view on a same page.
+              index: 2,
+              teXHTML: teXHTML,
+            )
           ],
         ),
       ),

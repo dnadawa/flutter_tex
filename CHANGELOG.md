@@ -1,7 +1,7 @@
 
 ## [1.0.3]
 
-- TeXView can be used in ListView for multiple time on same page (sometimes some rendering issues).
+- TeXView can be used in ListView for multiple time on same page.
 
 
 ## [1.0.2]

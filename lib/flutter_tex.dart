@@ -26,15 +26,14 @@ class TeXView extends StatefulWidget {
 }
 
 class _TeXViewState
-    extends State<TeXView> /* with AutomaticKeepAliveClientMixin */ {
+    extends State<TeXView>  with AutomaticKeepAliveClientMixin  {
   _Server _server;
   int _port;
   double _height = 1;
-  WebViewController _myController;
   String baseUrl;
 
-/*  @override
-  bool get wantKeepAlive => true;*/
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -62,32 +61,18 @@ class _TeXViewState
 
   @override
   Widget build(BuildContext context) {
-    //super.build(context);
+    super.build(context);
 
     return SizedBox(
       height: _height,
       child: WebView(
         key: widget.key,
-        onWebViewCreated: (controller) {
-          _myController = controller;
-        },
         initialUrl:
-            "$baseUrl?id=${Uri.encodeComponent(widget.index.toString())}&data=${Uri.encodeComponent(widget.teXHTML)}",
+            "$baseUrl?port=${Uri.encodeComponent(_port.toString())}&data=${Uri.encodeComponent(widget.teXHTML)}",
         onPageFinished: (message) {
           if (widget.onPageFinished != null) {
             widget.onPageFinished(message);
           }
-          _myController.evaluateJavascript("""
-        document.getElementById('data').innerHTML = decodeURIComponent(location.search.split('data=')[1]);
-        
-        MathJax.Hub.Queue(function () {
-        var height = document.getElementById('data').clientHeight;
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:$_port?rendering=completed&height="+height, true);
-        xmlHttp.send(null);
-        
-        });
-        """);
         },
         javascriptMode: JavascriptMode.unrestricted,
       ),
