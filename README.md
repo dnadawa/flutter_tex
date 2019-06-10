@@ -27,7 +27,7 @@ This package mainly depends on [webview_flutter](https://pub.dartlang.org/packag
 
 ```yaml
 dependencies:
-  flutter_tex: ^1.0.2
+  flutter_tex: ^1.0.3
 ```
 
 **2:** You can install packages from the command line:
@@ -73,3 +73,7 @@ For iOS add following code in your `<project-directory>/ios/Runner/Info.plist`
 
 [![Tweet Flutter_TeX](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=A%20Flutter%20Package%20to%20render%20Mathematics%2C%20Physics%20and%20Chemistry%20Equations%20based%20on%20LaTeX%20with%20full%20HTML%20support.&url=https://github.com/shahzadakram67/flutter_tex&via=shahzadakram67&hashtags=flutter,flutter_tex,latex,equations)
 
+
+## Known Issues For using Multiple TeXViews on Same Page
+
+- Multiple 'TeXView' in ListView on same page sometimes cause rendering issues, page doesn't render at all.

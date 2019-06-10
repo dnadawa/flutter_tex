@@ -2,45 +2,101 @@ library flutter_tex;
 
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mime/mime.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class TeXView extends StatefulWidget {
+  final int index;
   final Key key;
   final String teXHTML;
-  final Function onPageFinished;
-  final Function(String) onRenderFinished;
+  final Function(double) onRenderFinished;
+  final Function(String) onPageFinished;
 
-  TeXView({this.key, this.teXHTML, this.onPageFinished, this.onRenderFinished});
+  TeXView(
+      {this.index = 0,
+      this.key,
+      this.teXHTML,
+      this.onRenderFinished,
+      this.onPageFinished});
 
   @override
   _TeXViewState createState() => _TeXViewState();
 }
 
-class _TeXViewState extends State<TeXView> {
-  _Server server = _Server();
-  final baseUrl =
-      "http://localhost:8080/packages/flutter_tex/MathJax/index.html";
+class _TeXViewState
+    extends State<TeXView> /* with AutomaticKeepAliveClientMixin */ {
+  _Server _server;
+  int _port;
+  double _height = 1;
+  WebViewController _myController;
+  String baseUrl;
+
+/*  @override
+  bool get wantKeepAlive => true;*/
+
+  @override
+  void initState() {
+    _port = 8080 + widget.index;
+    _server = _Server(port: _port);
+    baseUrl = "http://localhost:$_port/packages/flutter_tex/MathJax/index.html";
+    super.initState();
+    serverCallbackHandler();
+  }
+
+
+  serverCallbackHandler() {
+    _server.start((request) {
+      double height = double.parse(request.uri.queryParameters['height']) + 15;
+      if (_height == 1) {
+        setState(() {
+          this._height = height;
+          if (widget.onRenderFinished != null) {
+            widget.onRenderFinished(height);
+          }
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    server.start((height) {
-      widget.onRenderFinished(height);
-    });
-    return WebView(
-      key: widget.key,
-      initialUrl: "$baseUrl?data=${Uri.encodeComponent(widget.teXHTML)}",
-      onPageFinished: widget.onPageFinished(),
-      javascriptMode: JavascriptMode.unrestricted,
+    //super.build(context);
+
+    return SizedBox(
+      height: _height,
+      child: WebView(
+        key: widget.key,
+        onWebViewCreated: (controller) {
+          _myController = controller;
+        },
+        initialUrl:
+            "$baseUrl?id=${Uri.encodeComponent(widget.index.toString())}&data=${Uri.encodeComponent(widget.teXHTML)}",
+        onPageFinished: (message) {
+          if (widget.onPageFinished != null) {
+            widget.onPageFinished(message);
+          }
+          _myController.evaluateJavascript("""
+        document.getElementById('data').innerHTML = decodeURIComponent(location.search.split('data=')[1]);
+        
+        MathJax.Hub.Queue(function () {
+        var height = document.getElementById('data').clientHeight;
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "http://localhost:$_port?rendering=completed&height="+height, true);
+        xmlHttp.send(null);
+        
+        });
+        """);
+        },
+        javascriptMode: JavascriptMode.unrestricted,
+      ),
     );
   }
 
   @override
   void dispose() {
-    server.close();
+    _server.close();
     super.dispose();
   }
 }
@@ -65,7 +121,7 @@ class _Server {
     }
   }
 
-  Future<void> start(Function onRenderFinished(String height)) async {
+  Future<void> start(Function onRenderFinished(HttpRequest request)) async {
     if (this._server != null) {
       throw Exception('Server already started on http://localhost:$_port');
     }
@@ -73,7 +129,7 @@ class _Server {
     var completer = new Completer();
 
     runZoned(() {
-      HttpServer.bind('127.0.0.1', _port).then((server) {
+      HttpServer.bind('127.0.0.1', _port, shared: true).then((server) {
         print('Server running on http://localhost:' + _port.toString());
 
         this._server = server;
@@ -81,7 +137,7 @@ class _Server {
         server.listen((HttpRequest request) async {
           if (request.method == 'GET' &&
               request.uri.queryParameters['rendering'] == "completed") {
-            onRenderFinished(request.uri.queryParameters['height'].toString());
+            onRenderFinished(request);
           }
 
           var body = List<int>();

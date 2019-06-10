@@ -5,6 +5,7 @@
     <script id="MathJaxConfig" type="text/x-mathjax-config">
         MathJax.Hub.Config({
         showMathMenu:false,
+        delayStartupUntil: "configured",
         tex2jax: {
           ignoreClass: "tex2jax_ignore",
         },
@@ -48,46 +49,7 @@
 
 <body>
 
-<div style="font-size: 5vw;" id="data"></div>
-
-<script>
-
-        MathJax.Hub.Register.StartupHook("End",function () {
-
-
-
-        });
-
-
-
-
-
-        document.getElementById('data').innerHTML = decodeURIComponent(location.search.split('data=')[1]);
-       // MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-
-        MathJax.Hub.Queue(function () {
-
-         var height = document.getElementById('data').clientHeight;
-
-             var xmlHttp = new XMLHttpRequest();
-
-xmlHttp.open("GET", "http://localhost:8080?rendering=completed&height="+height, true);
-xmlHttp.onreadystatechange = function()
-{
-    if(xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-        alert(http.responseText);
-    }
-}
-xmlHttp.send(null);
-
-
-});
-
-
-
-</script>
-
+<div id="data"></div>
 
 </body>
 
